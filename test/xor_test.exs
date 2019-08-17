@@ -11,24 +11,15 @@ defmodule AnnexMatrex.SequenceXorTest do
   end
 
   def sequence do
-    Annex.sequence(layers(), cost: Annex.Cost.MeanSquaredError)
+    Annex.sequence(layers())
   end
 
-  def data do
+  def dataset do
     [
-      [0.0, 0.0],
-      [0.0, 1.0],
-      [1.0, 0.0],
-      [1.0, 1.0]
-    ]
-  end
-
-  def labels do
-    [
-      [0.0],
-      [1.0],
-      [1.0],
-      [0.0]
+      {[0.0, 0.0], [0.0]},
+      {[0.0, 1.0], [1.0]},
+      {[1.0, 0.0], [1.0]},
+      {[1.0, 1.0], [0.0]}
     ]
   end
 
@@ -36,7 +27,7 @@ defmodule AnnexMatrex.SequenceXorTest do
     [
       name: "XOR operation",
       learning_rate: 0.05,
-      halt_condition: {:epochs, 80_000},
+      halt_condition: {:epochs, 8_000},
       log_interval: 10_000
     ]
   end
@@ -44,7 +35,7 @@ defmodule AnnexMatrex.SequenceXorTest do
   test "xor test" do
     seq1 = sequence()
 
-    assert {:ok, seq2, _loss} = Annex.train(seq1, data(), labels(), train_opts())
+    assert {seq2, _loss} = Annex.train(seq1, dataset(), train_opts())
 
     assert [zero_zero] = Annex.predict(seq2, [0.0, 0.0])
     assert [zero_one] = Annex.predict(seq2, [0.0, 1.0])

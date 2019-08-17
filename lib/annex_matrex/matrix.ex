@@ -1,6 +1,7 @@
 defmodule AnnexMatrex.Matrix do
   use Annex.Data
   use Annex.Debug, debug: true
+  alias Annex.Shape
 
   alias AnnexMatrex.Matrix
 
@@ -20,14 +21,14 @@ defmodule AnnexMatrex.Matrix do
   end
 
   @impl Data
-  @spec cast(Data.flat_data() | Matrex.t() | t(), {any, any}) :: t()
-  def cast(%Matrix{} = data, {rows, columns}) do
+  @spec cast(Data.flat_data() | Matrex.t() | t(), Shape.t()) :: t()
+  def cast(%Matrix{} = data, [_, _] = shape) do
     data
     |> to_inner()
-    |> cast({rows, columns})
+    |> cast(shape)
   end
 
-  def cast(%Matrex{} = inner, {rows, columns}) do
+  def cast(%Matrex{} = inner, [rows, columns]) do
     case Matrex.size(inner) do
       {^rows, ^columns} ->
         inner
@@ -38,7 +39,7 @@ defmodule AnnexMatrex.Matrix do
     |> build
   end
 
-  def cast(data, {rows, columns}) when Data.is_flat_data(data) do
+  def cast(data, [rows, columns]) when Data.is_flat_data(data) do
     case {length(data), rows, columns} do
       {size, rows, columns} when rows * columns == size ->
         Matrex.reshape(data, rows, columns)
@@ -142,7 +143,12 @@ defmodule AnnexMatrex.Matrix do
 
   @impl Data
   @spec shape(t()) :: {pos_integer, pos_integer}
-  def shape(%Matrix{} = m), do: m |> to_inner() |> Matrex.size()
+  def shape(%Matrix{} = m) do
+    m
+    |> to_inner()
+    |> Matrex.size()
+    |> Tuple.to_list()
+  end
 
   @impl Data
   @spec to_flat_list(t()) :: [float]
