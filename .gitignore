@@ -23,3 +23,7 @@ erl_crash.dump
 annex_matrex-*.tar
 
 .elixir_ls/
+
+#IntelliJ cruft
+.idea/
+annex_matrex.iml
